@@ -696,7 +696,7 @@ export async function sendEmailNotification(
   htmlContent: string
 ): Promise<boolean> {
   try {
-    // Use Manus built-in email service
+    // Use the built-in email service
     // This is a placeholder - implement with actual email service
     console.log(`[Email] To: ${to}, Subject: ${subject}`);
     return true;
@@ -878,7 +878,7 @@ describe("Listings", () => {
       openId: "test-landlord",
       email: "landlord@test.com",
       name: "Test Landlord",
-      loginMethod: "manus",
+      loginMethod: "oauth",
       role: "landlord" as const,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -988,8 +988,9 @@ pnpm test -- --coverage
 ## Support
 
 For questions or issues with implementation, refer to:
-- [Manus Documentation](https://docs.manus.im)
 - [tRPC Documentation](https://trpc.io)
+- [Tailwind CSS Documentation](https://tailwindcss.com)
+- [React Documentation](https://react.dev)
 - [Tailwind CSS Documentation](https://tailwindcss.com)
 - [React Documentation](https://react.dev)
 

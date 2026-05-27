@@ -107,11 +107,11 @@ Allow educational service providers to advertise:
 - **Frontend**: React 19, Tailwind CSS 4, TypeScript
 - **Backend**: Express.js, tRPC 11, Node.js
 - **Database**: MySQL/TiDB
-- **Storage**: AWS S3 (via Manus platform)
-- **Authentication**: Manus OAuth
+- **Storage**: AWS S3
+- **Authentication**: OAuth
 - **Payments**: Stripe (optional, for monetization)
-- **Maps**: Google Maps API (via Manus proxy)
-- **Notifications**: Email (via Manus platform)
+- **Maps**: Google Maps API
+- **Notifications**: Email
 
 ### Database Schema
 
@@ -119,7 +119,7 @@ Allow educational service providers to advertise:
 // Users table (extended with role field)
 users {
   id: int (PK)
-  openId: varchar (unique) - Manus OAuth ID
+  openId: varchar (unique) - OAuth ID
   name: text
   email: varchar
   role: enum('user', 'admin', 'landlord')
@@ -213,7 +213,7 @@ notifications {
 - Node.js 22+
 - pnpm package manager
 - MySQL 8.0+ or TiDB
-- Manus account with project created
+- Project account with project created
 - Google Maps API key (optional, for maps)
 - Stripe account (optional, for payments)
 
@@ -231,22 +231,22 @@ pnpm install
 pnpm drizzle-kit generate
 
 # Apply migrations to database
-# (Use the Manus UI or execute the SQL file)
+# (Use the admin UI or execute the SQL file)
 ```
 
 ### Step 2: Configure Environment Variables
 
-Set these in the Manus project settings:
+Set these in the project settings:
 
 ```env
-# Database (auto-configured by Manus)
+# Database (auto-configured by the platform)
 DATABASE_URL=mysql://user:password@host/database
 
 # Authentication (auto-configured)
 JWT_SECRET=your_jwt_secret
 VITE_APP_ID=your_app_id
-OAUTH_SERVER_URL=https://api.manus.im
-VITE_OAUTH_PORTAL_URL=https://portal.manus.im
+OAUTH_SERVER_URL=https://api.example.com
+VITE_OAUTH_PORTAL_URL=https://portal.example.com
 
 # Admin accounts (set these for Makhosi and Vimbai)
 OWNER_OPEN_ID=makhosi_open_id
@@ -266,7 +266,7 @@ ADMIN_EMAIL=admins@housebyus.com
 
 To make Makhosi Mathe and Vimbai Tipedze admins:
 
-1. Have them sign up through the Manus OAuth portal
+1. Have them sign up through the OAuth portal
 2. In the database, update their role to 'admin':
 
 ```sql
@@ -275,9 +275,9 @@ UPDATE users SET role = 'admin' WHERE name IN ('Makhosi Mathe', 'Vimbai Tipedze'
 
 Alternatively, set their `openId` in environment variables and they'll auto-promote on first login.
 
-### Step 4: Deploy to Manus
+### Step 4: Deploy to production
 
-1. Click "Publish" button in Manus Management UI
+1. Click the "Publish" or deploy button in your management UI
 2. Configure custom domain (optional)
 3. Enable SSL/HTTPS (auto-configured)
 4. Set up monitoring and analytics
