@@ -4,17 +4,37 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit2, Trash2, Eye, MapPin, DollarSign } from "lucide-react";
+import { Plus, Edit2, Trash2, Eye, MapPin, DollarSign, AlertTriangle, X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 export default function LandlordDashboard() {
   const { user, isAuthenticated } = useAuth();
   const [, setLocation] = useLocation();
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+  const [deleteError, setDeleteError] = useState("");
+
+  const utils = trpc.useUtils();
 
   const { data: listings, isLoading } = trpc.listings.getByLandlord.useQuery(undefined, {
     enabled: isAuthenticated && user?.role === "landlord",
   });
+
+  const deleteMutation = trpc.listings.delete.useMutation({
+    onSuccess: () => {
+      /* Invalidate the landlord listing cache so the list refreshes without a page reload */
+      utils.listings.getByLandlord.invalidate();
+      setDeleteConfirm(null);
+      setDeleteError("");
+    },
+    onError: (err) => {
+      setDeleteError(err.message || "Failed to delete listing.");
+    },
+  });
+
+  const handleDeleteConfirm = async (id: number) => {
+    setDeleteError("");
+    await deleteMutation.mutateAsync(id);
+  };
 
   if (!isAuthenticated || user?.role !== "landlord") {
     return (
@@ -80,7 +100,7 @@ export default function LandlordDashboard() {
                         {listing.status.charAt(0).toUpperCase() + listing.status.slice(1)}
                       </Badge>
                     </div>
-                    
+
                     <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-4">
                       <div className="flex items-center gap-1">
                         <MapPin className="w-4 h-4" />
@@ -97,30 +117,87 @@ export default function LandlordDashboard() {
                     </p>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 shrink-0">
+                    {/* View */}
                     <Button
                       variant="outline"
                       size="sm"
+                      title="View listing"
                       onClick={() => setLocation(`/listing/${listing.id}`)}
                     >
                       <Eye className="w-4 h-4" />
                     </Button>
+
+                    {/* Edit — disabled until edit page is built */}
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setLocation(`/landlord/edit-listing/${listing.id}`)}
+                      title="Editing is not yet available"
+                      disabled
                     >
                       <Edit2 className="w-4 h-4" />
                     </Button>
+
+                    {/* Delete — opens inline confirmation */}
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setDeleteConfirm(listing.id)}
+                      title="Delete listing"
+                      onClick={() => {
+                        setDeleteError("");
+                        setDeleteConfirm(listing.id);
+                      }}
+                      className="text-destructive hover:bg-destructive/10 hover:border-destructive"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
+
+                {/* ── Inline delete confirmation ── */}
+                {deleteConfirm === listing.id && (
+                  <div className="mt-4 p-4 bg-destructive/5 border border-destructive/20 rounded-lg">
+                    <div className="flex items-start gap-3 mb-3">
+                      <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-destructive">Delete this listing?</p>
+                        <p className="text-sm text-muted-foreground mt-0.5">
+                          This action cannot be undone. The listing will be permanently removed.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => { setDeleteConfirm(null); setDeleteError(""); }}
+                        className="ml-auto p-1 rounded hover:bg-muted transition-colors"
+                        aria-label="Cancel"
+                      >
+                        <X className="w-4 h-4 text-muted-foreground" />
+                      </button>
+                    </div>
+
+                    {deleteError && (
+                      <p className="text-xs text-destructive mb-3 pl-8">{deleteError}</p>
+                    )}
+
+                    <div className="flex gap-2 pl-8">
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDeleteConfirm(listing.id)}
+                        disabled={deleteMutation.isPending}
+                      >
+                        {deleteMutation.isPending ? "Deleting..." : "Yes, delete"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => { setDeleteConfirm(null); setDeleteError(""); }}
+                        disabled={deleteMutation.isPending}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </Card>
             ))}
           </div>
