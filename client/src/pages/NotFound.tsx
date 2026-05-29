@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle, Home } from "lucide-react";
+import { AlertCircle, Home, ArrowLeft } from "lucide-react";
 import { useLocation } from "wouter";
 
 export default function NotFound() {
@@ -8,6 +8,10 @@ export default function NotFound() {
 
   const handleGoHome = () => {
     setLocation("/");
+  };
+
+  const handleGoBack = () => {
+    window.history.back();
   };
 
   return (
@@ -37,6 +41,14 @@ export default function NotFound() {
             id="not-found-button-group"
             className="flex flex-col sm:flex-row gap-3 justify-center"
           >
+            <Button
+              variant="outline"
+              onClick={handleGoBack}
+              className="px-6 py-2.5 rounded-lg transition-all duration-200"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Go Back
+            </Button>
             <Button
               onClick={handleGoHome}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
