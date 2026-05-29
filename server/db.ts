@@ -183,6 +183,14 @@ export async function updateListingStatus(listingId: number, status: "pending" |
   return await db.update(listings).set(updateData).where(eq(listings.id, listingId));
 }
 
+export async function deleteListing(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  /* Remove associated media first to avoid foreign-key constraint violations */
+  await db.delete(media).where(eq(media.listingId, id));
+  await db.delete(listings).where(eq(listings.id, id));
+}
+
 // Media queries
 export async function createMedia(data: InsertMedia) {
   const db = await getDb();
