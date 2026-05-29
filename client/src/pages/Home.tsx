@@ -16,7 +16,7 @@ import {
   Phone,
 } from "lucide-react";
 import { useLocation } from "wouter";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
 
@@ -83,6 +83,8 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+  const [shake, setShake] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const { data: featuredListings, isLoading } = trpc.listings.getApproved.useQuery({
     limit: 6,
     offset: 0,
@@ -90,13 +92,10 @@ export default function Home() {
 
   const handleSearch = () => {
     if (!searchQuery.trim()) {
-      /* Shake the input briefly to signal empty query */
-      const input = document.getElementById("hero-search") as HTMLInputElement | null;
-      if (input) {
-        input.classList.add("animate-shake");
-        input.focus();
-        setTimeout(() => input.classList.remove("animate-shake"), 500);
-      }
+      /* Shake the input via state to signal an empty query */
+      setShake(true);
+      searchInputRef.current?.focus();
+      setTimeout(() => setShake(false), 500);
       return;
     }
     setIsSearching(true);
@@ -207,12 +206,12 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
               <div className="relative flex-1">
                 <Input
-                  id="hero-search"
+                  ref={searchInputRef}
                   placeholder="Search by location or area…"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                  className="flex-1 pr-4 transition-all"
+                  className={`flex-1 pr-4 transition-all${shake ? " animate-shake" : ""}`}
                 />
               </div>
               <Button
