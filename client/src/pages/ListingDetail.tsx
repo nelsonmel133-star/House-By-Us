@@ -1,16 +1,18 @@
 import { useParams, useLocation } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { MapPin, Phone, Mail, Home as HomeIcon, ChevronLeft, ChevronRight, Users, DoorOpen, AlertCircle, CheckCircle } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { MapView } from "@/components/Map";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 export default function ListingDetail() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const { user, isAuthenticated } = useAuth();
 
   const { data: listing, isLoading } = trpc.listings.getById.useQuery(Number(id));
   const [showContactForm, setShowContactForm] = useState(false);
@@ -19,6 +21,17 @@ export default function ListingDetail() {
     senderEmail: "",
     message: "",
   });
+
+  /* Pre-fill contact form with authenticated user's details */
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      setContactForm((prev) => ({
+        ...prev,
+        senderName: prev.senderName || user.name || "",
+        senderEmail: prev.senderEmail || user.email || "",
+      }));
+    }
+  }, [isAuthenticated, user]);
   const [contactSuccess, setContactSuccess] = useState(false);
   const [contactError, setContactError] = useState("");
 
@@ -70,7 +83,7 @@ export default function ListingDetail() {
           <HomeIcon className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
           <h1 className="text-2xl font-bold mb-2">Listing not found</h1>
           <p className="text-muted-foreground mb-6">This listing may have been removed or is no longer available.</p>
-          <Button onClick={() => setLocation("/search")}>Back to Search</Button>
+          <Button onClick={() => window.history.back()}>Back to Search</Button>
         </div>
       </div>
     );
@@ -92,7 +105,7 @@ export default function ListingDetail() {
       {/* Header */}
       <div className="bg-card border-b border-border sticky top-0 z-40">
         <div className="container py-4 flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => setLocation("/search")}>
+          <Button variant="ghost" size="sm" onClick={() => window.history.back()}>
             <ChevronLeft className="w-4 h-4" />
           </Button>
           <h1 className="text-2xl font-bold flex-1">{listing.title}</h1>
