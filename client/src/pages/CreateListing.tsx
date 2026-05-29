@@ -4,7 +4,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { AlertCircle, Upload, X } from "lucide-react";
+import { AlertCircle, Upload, X, Info } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 const AVAILABLE_SERVICES = [
@@ -268,42 +268,24 @@ export default function CreateListing() {
             {/* Media Upload */}
             <div className="border-b pb-6">
               <h2 className="text-lg font-semibold mb-4">Media (Images & Videos)</h2>
-              <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground mb-2">
-                  Drag and drop files or click to select
+
+              <div className="flex items-start gap-3 p-4 bg-muted/60 border border-border rounded-lg mb-4 text-sm text-muted-foreground">
+                <Info className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
+                <p>
+                  Photo and video uploads are coming soon. For now, create your listing and our
+                  team will contact you to collect media directly.
                 </p>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*,video/*"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  id="file-upload"
-                />
-                <label htmlFor="file-upload" className="cursor-pointer">
-                  <Button type="button" variant="outline" size="sm">
-                    Choose Files
-                  </Button>
-                </label>
               </div>
 
-              {uploadedFiles.length > 0 && (
-                <div className="mt-4 space-y-2">
-                  {uploadedFiles.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-muted rounded">
-                      <span className="text-sm">{file.name}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveFile(index)}
-                        className="text-destructive hover:text-destructive/80"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="border-2 border-dashed border-border rounded-lg p-6 text-center opacity-50 pointer-events-none select-none" aria-disabled="true">
+                <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground mb-2">
+                  File upload not yet available
+                </p>
+                <Button type="button" variant="outline" size="sm" disabled>
+                  Choose Files
+                </Button>
+              </div>
             </div>
 
             <div className="flex gap-4">
