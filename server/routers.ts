@@ -270,6 +270,7 @@ export const appRouter = router({
           throw new TRPCError({ code: "FORBIDDEN", message: "Cannot delete this listing" });
         }
 
+        await db.deleteListing(input);
         return { success: true };
       }),
   }),
